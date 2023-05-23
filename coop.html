@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+
+   <head>
+      <title>Guess the Card</title>
+      <link rel="stylesheet" href="coop.css">
+      <style>
+         h1, h2 {
+            font-family:Arial;
+         }
+         #submitbutton, #newgamebutton {
+            background-color: #4c7f7f;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 8px 8px;
+            cursor: pointer;
+         }
+      </style>
+   </head>
+
+   <body>
+      <table width = "100%" border = "0">
+         
+         <tr>
+            <td colspan = "2" bgcolor = "#b5dcb3">
+               <h1>Guess the Card</h1>
+            </td>
+         </tr>
+
+         <tr>
+            <td colspan = "2" bgcolor = "#929494" height="50">
+               <h2 id="chTitle">Stage 1: Guess the color of the card</h2>
+               <p id="chPara"></p>
+            </td>
+         </tr>
+
+         <tr valign = "top">
+            <td bgcolor = "#b6b8b7" width = "50%">
+               <div align="center">
+                  <h2>Your Guess</h2><br>
+                  <label for="colr">Choose your guess : </label>
+                  <select name="colr" id="colr">
+                  </select>
+               </div>
+            </td>
+            
+            <td bgcolor = "#E2E5E4" width = "50%" height = "275">
+               <center><h2>Next card</h2></center>
+               <center>
+               <img id="cardimage" height="200"></img>
+            </center>
+            </td>
+         </tr>
+
+         <tr>
+            <td colspan="2">
+            <h2 id="finalmessage">Result</h2>
+            </td>
+         </tr>
+
+         <tr>
+            <td colspan="2">
+            <center><button type="button" id="submitbutton">Submit Your Choice</button>
+               <button type="button" id="newgamebutton">New Game</button>
+            </center>
+            </td>
+         </tr>
+          <tr>
+            <td colspan="2">
+            <center>
+               <p>WIN|LOSE</p>
+            </center>
+            <center>
+               <p id="winlose">X|X</p>
+            </center>
+            </td>
+         </tr>
+         <tr>
+            <td colspan = "2" bgcolor = "#b5dcb3">
+               <center>
+                  <p style="text-align: right;">Developed by Saad Rahman Warsi <br> swars032@uottawa.ca</p>
+               </center>
+            </td>
+         </tr>
+         
+      </table>
+      <script type="module">
+
+         var person;
+        person=prompt("please enter your name");
+
+        var winlose;
+        winlose=document.getElementById("winlose");
+
+   import {initializeApp} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"
+
+   const firebaseConfig = {
+    apiKey: "AIzaSyCObAO-fh1YFTTy1MhEYYl9Z_LUYuvxTGI",
+    authDomain: "cardgame-533d4.firebaseapp.com",
+    projectId: "cardgame-533d4",
+    storageBucket: "cardgame-533d4.appspot.com",
+    messagingSenderId: "792446067253",
+    appId: "1:792446067253:web:2139ce523500e0f057477c",
+    measurementId: "G-9P0MZ45KMY"
+  };
+
+  const app = initializeApp(firebaseConfig);
+
+
+
+        import {getDatabase, ref, get, set, child, update, remove}
+        from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"//Copy and Paste the URL from near the top of the CDN you pasted in from firebase
+        // (the one where you imported "initializeApp" from),
+        //but change "firebase-app" to "firebase-database"
+        
+
+        const db = getDatabase();
+
+        
+
+        function InsertData(v) {
+             var result=[];
+            const dbref = ref(db);
+
+            get(child(dbref, "Users/"+person))
+            .then((snapshot)=>{
+                if(snapshot.exists()){
+                    result[0]=snapshot.val().Win;
+                    result[1]=snapshot.val().Lose;
+                    if (v===true)
+                    {
+                    update(ref(db, "Users/"+person),{
+                 Win: result[0]+1,
+                Lose: result[1]
+            })
+            .then(()=>{
+                alert("Data updated successfully");
+                FindData();
+            })
+            .catch((error)=>{
+                alert(error);
+            });
+         }
+         else if(v===false)
+         {
+             update(ref(db, "Users/"+person),{
+                 Win: result[0],
+                Lose: result[1]+1
+            })
+            .then(()=>{
+                alert("Data updated successfully");
+                FindData();
+            })
+            .catch((error)=>{
+                alert(error);
+            });
+         }
+                } else {
+                    if (v===true)
+                    {
+                       update(ref(db, "Users/"+person),{
+                 Win: 1,
+                Lose: 0
+            })
+            .then(()=>{
+                alert("Data updated successfully");
+                FindData();
+            })
+            .catch((error)=>{
+                alert(error);
+            });
+                    }
+                    else if(v===false)
+                    {
+                       update(ref(db, "Users/"+person),{
+                 Win: 0,
+                Lose: 1
+            })
+            .then(()=>{
+                alert("Data updated successfully");
+                FindData();
+            })
+            .catch((error)=>{
+                alert(error);
+            });
+                    }
+                }
+            })
+            .catch((error)=>{
+                alert(error)
+            })
+            
+            return result;
+       
+         }
+        
+
+        function FindData() {
+            var result=[];
+            const dbref = ref(db);
+
+            get(child(dbref, "Users/"+person))
+            .then((snapshot)=>{
+                if(snapshot.exists()){
+                  console.log("in finddata");
+                    winlose.textContent=snapshot.val().Win.toString()+"|"+snapshot.val().Lose.toString();
+                    result[0]=snapshot.val().Win;
+                    result[1]=snapshot.val().Lose;
+                } else {
+                    console.log("in finddata")
+                    winlose.textContent="0|0";
+                }
+            })
+            .catch((error)=>{
+                alert(error)
+            })
+            return result;
+        }
+
+        FindData();
+         const deck_fetch_url='https://www.deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1';
+
+
+var list= document.getElementById("colr");
+
+var newgame=document.getElementById("newgamebutton")
+
+
+var submit = document.getElementById("submitbutton");
+var stagelevel = document.getElementById("chTitle");
+
+var final_message=document.getElementById("finalmessage");
+
+var stage=0;
+var card1;
+var card2;
+var card3;
+
+var card_image= document.getElementById("cardimage");
+ var deck_id;
+
+
+async function fetch_deck()
+{
+   var deck_response= await fetch(deck_fetch_url);
+   var deck_json=await deck_response.json();
+   return deck_json.deck_id;
+}
+
+async function fetch_card( deck_id)
+{
+   var url = 'https://www.deckofcardsapi.com/api/deck/'+deck_id+'/draw/?count=1';
+    var card_response=await(await fetch(url)).json();
+    var card=[];
+    card[0]=card_response.cards[0].value;
+    card[1]=card_response.cards[0].suit;
+    card[2]=card_response.cards[0].image;
+    return card;
+}
+
+  
+
+function stage1()
+{
+    stage=1;
+    stagelevel.textContent="Stage 1: Guess the color of the card";
+    var option_red=document.createElement("option")
+    option_red.text="red";
+    list.add(option_red);
+    var option_black=document.createElement("option")
+    option_black.text="black";
+    list.add(option_black);
+}
+
+function stage2()
+{
+    stage=2;
+    stagelevel.textContent="Stage 2: Guess whether the next card will be greater than, equal to, or less than the previously drawn card";
+    for(var i=0;i<2;i++)
+    {
+        list.remove(list.options[i]);
+    }
+    var option_less=document.createElement("option")
+    option_less.text="less";
+    list.add(option_less);
+    var option_equal=document.createElement("option")
+    option_equal.text="equal";
+    list.add(option_equal);
+    var option_greater=document.createElement("option")
+    option_greater.text="greater";
+    list.add(option_greater);
+}
+
+function stage3()
+{
+    stage=3;
+    stagelevel.textContent="Stage 3: Guess whether the next card is hearts, diamonds, clubs, or spades";
+    for(var i=0;i<3;i++)
+    {
+        list.remove(list.options[i]);
+    }
+    var option_hearts=document.createElement("option")
+    option_hearts.text="hearts";
+    list.add(option_hearts);
+    var option_diamonds=document.createElement("option")
+    option_diamonds.text="diamonds";
+    list.add(option_diamonds);
+    var option_clubs=document.createElement("option")
+    option_clubs.text="clubs";
+    list.add(option_clubs);
+    var option_spades=document.createElement("option")
+    option_spades.text="spades";
+    list.add(option_spades);
+}
+
+
+function lose()
+{
+    console.log("lose is executed");
+   
+    final_message.textContent="Result: You lose the game. Start a new game.";
+    
+    final_message.style.color="red";
+    stage=0;
+    InsertData(false);
+}
+
+function win()
+{
+    
+    final_message.textContent="Result: Congratulations! You WIN this game.";
+    
+    final_message.style.color="green";
+    stage=0;
+   InsertData(true);
+}
+async function play_game()
+{
+
+   deck_id=await fetch_deck();
+   card1=await fetch_card(deck_id);
+   card2=await fetch_card(deck_id);
+   card3=await fetch_card(deck_id);
+   // For troubleshooting and testing
+   console.log(card1);
+   console.log(card2);
+   console.log(card3);
+   stage1();
+ 
+
+}
+
+newgame.addEventListener("click",function()
+{  
+   stage=0;
+   stagelevel.textContent="";
+   final_message.textContent="Result";
+   final_message.style.color="black"
+   var no_of_options=list.options.length
+   for(var i=0;i<=no_of_options;i++)
+    {
+        console.log("i="+i);
+        list.remove(list.options[i]);
+    } 
+    card_image.src="";   
+ 
+    play_game();
+
+});
+
+submit.addEventListener("click",function()
+   {
+      if (stage===3)
+      {
+        
+         card_image.src=card3[2];
+          if ((list.selectedIndex===0 && card3[1]==='HEARTS') || (list.selectedIndex===1 && card3[1]==='DIAMONDS') || (list.selectedIndex===2 && card3[1]=='CLUBS')|| (list.selectedIndex===3 && card3[1]==='SPADES'))
+            {
+               win();
+            }
+            else 
+            {
+               console.log("lose called in stage3")
+               lose();
+            }
+           
+      }
+      else if (stage===2)
+      {
+        
+         card_image.src=card2[2];
+         switch(card1[0])
+         {
+            case 'ACE':card1[0]=1;
+            break;
+            case 'JACK':card1[0]=11;
+            break;
+            case 'QUEEN':card1[0]=12;
+            break;
+            case 'KING':card1[0]=13;
+            break;
+         }
+         switch(card2[0])
+         {
+            case 'ACE':card2[0]=1;
+            break;
+            case 'JACK':card2[0]=11;
+            break;
+            case 'QUEEN':card2[0]=12;
+            break;
+            case 'KING':card2[0]=13;
+            break;
+         }
+          if  ((list.selectedIndex===0 && parseInt(card1[0])>parseInt(card2[0])) || (list.selectedIndex===1 && parseInt(card2[0])===parseInt(card1[0])) || (list.selectedIndex===2 && parseInt(card2[0])>parseInt(card1[0])))
+            {
+                final_message.textContent="Result: Great Job. You guessed it correctly. Now play Stage 3.";
+                final_message.style.color="black";
+               stage3();
+            }
+            else 
+            {
+               console.log("lose called in stage2")
+               lose();
+            }
+       switch(card1[0])
+         {
+            case 1:card1[0]='ACE';
+            break;
+            case 11:card1[0]='JACK';
+            break;
+            case 12:card1[0]='QUEEN';
+            break;
+            case 13:card1[0]='KING';
+            break;
+         }
+         switch(card2[0])
+         {
+           case 1:card2[0]='ACE';
+            break;
+            case 11:card2[0]='JACK';
+            break;
+            case 12:card2[0]='QUEEN';
+            break;
+            case 13:card2[0]='KING';
+            break;
+         }
+      }
+      else if (stage===1)
+      {
+         
+         card_image.src=card1[2];
+         if  ((list.selectedIndex===0 && (card1[1]==='HEARTS'||card1[1]==='DIAMONDS'))||(list.selectedIndex===1 && (card1[1]==='SPADES'||card1[1]==='CLUBS')))
+            {
+                final_message.textContent="Result: Good guess, now play Stage 2.";
+                final_message.style.color="black";
+                stage2();
+            }
+            else 
+            {
+               console.log("lose called in stage1")
+               lose();
+            }
+      }
+});
+      
+
+play_game();
+      </script>
+   </body>
+
+   
+
+</html>
